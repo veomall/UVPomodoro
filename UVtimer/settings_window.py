@@ -170,9 +170,9 @@ class SettingsWindow(QMainWindow):
         if file_name:
             self.notification_sound_path.setText(os.path.basename(file_name))
             self.notification_sound_file = file_name
-        else:
-            self.notification_sound_path.setText("Default")
-            self.notification_sound_file = "notification.mp3"
+        # else:
+        #     self.notification_sound_path.setText("Default")
+        #     self.notification_sound_file = "notification.mp3"
 
     def choose_background_music_folder(self):
         """
@@ -182,9 +182,9 @@ class SettingsWindow(QMainWindow):
         if folder:
             self.background_music_path.setText(folder)
             self.background_music_folder = folder
-        else:
-            self.background_music_path.setText("Default")
-            self.background_music_folder = "bg_music"
+        # else:
+        #     self.background_music_path.setText("Default")
+        #     self.background_music_folder = "bg_music"
 
     def choose_background_image(self):
         """
@@ -194,9 +194,9 @@ class SettingsWindow(QMainWindow):
         if file_name:
             self.background_image_path.setText(os.path.basename(file_name))
             self.background_image_file = file_name
-        else:
-            self.background_image_path.setText("Default")
-            self.background_image_file = None
+        # else:
+        #     self.background_image_path.setText("Default")
+        #     self.background_image_file = None
 
     def load_config(self):
         """
@@ -213,6 +213,10 @@ class SettingsWindow(QMainWindow):
         """
         Saves the current configuration to a JSON file.
         """
+        # Load the existing config first
+        existing_config = self.load_config()
+
+        # Update the config with new values, keeping old values if not changed
         config = {
             'run_time': self.run_time_slider.value(),
             'rest_time': self.rest_time_slider.value(),
@@ -221,11 +225,12 @@ class SettingsWindow(QMainWindow):
             'activate_micro_rest': self.activate_micro_rest.isChecked(),
             'display_session_counter': self.display_session_counter.isChecked(),
             'display_music_controller': self.display_music_controller.isChecked(),
-            'notification_sound': getattr(self, 'notification_sound_file', "notification.mp3"),
-            'background_music_folder': getattr(self, 'background_music_folder', "bg_music"),
-            'background_image': getattr(self, 'background_image_file', None),
+            'notification_sound': getattr(self, 'notification_sound_file', existing_config.get('notification_sound', "notification.mp3")),
+            'background_music_folder': getattr(self, 'background_music_folder', existing_config.get('background_music_folder', "bg_music")),
+            'background_image': getattr(self, 'background_image_file', existing_config.get('background_image', None)),
             'background_opacity': self.background_opacity_slider.value(),
         }
+
         with open('config.json', 'w') as f:
             json.dump(config, f)
 
@@ -273,6 +278,10 @@ class SettingsWindow(QMainWindow):
         Starts the timer with the current settings and opens the timer window.
         """
         from UVtimer.timer_window import TimerWindow
+
+        # Load the existing config first
+        existing_config = self.load_config()
+        
         settings = {
             'run_time': self.run_time_slider.value(),
             'rest_time': self.rest_time_slider.value(),
@@ -281,9 +290,9 @@ class SettingsWindow(QMainWindow):
             'activate_micro_rest': self.activate_micro_rest.isChecked(),
             'display_session_counter': self.display_session_counter.isChecked(),
             'display_music_controller': self.display_music_controller.isChecked(),
-            'notification_sound': getattr(self, 'notification_sound_file', "notification.mp3"),
-            'background_music_folder': getattr(self, 'background_music_folder', "bg_music"),
-            'background_image': getattr(self, 'background_image_file', None),
+            'notification_sound': getattr(self, 'notification_sound_file', existing_config.get('notification_sound', "notification.mp3")),
+            'background_music_folder': getattr(self, 'background_music_folder', existing_config.get('background_music_folder', "bg_music")),
+            'background_image': getattr(self, 'background_image_file', existing_config.get('background_image', None)),
             'background_opacity': self.background_opacity_slider.value() / 100,
         }
         self.save_config()

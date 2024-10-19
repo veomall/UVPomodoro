@@ -1,7 +1,7 @@
 # Import necessary modules from PyQt5
 from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtGui import QPainter, QColor, QPainterPath
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QColor, QPainter, QPainterPath
+from PyQt5.QtCore import Qt, QSize, pyqtProperty
 
 
 def load_stylesheet(file_path):
@@ -18,35 +18,27 @@ def load_stylesheet(file_path):
         return f.read()
 
 class IconButton(QPushButton):
-    """
-    A custom QPushButton that displays an icon using vector graphics.
-    """
     def __init__(self, color, icon_path, parent=None):
-        """
-        Initialize the IconButton.
-
-        Args:
-            color (str): The background color of the button.
-            icon_path (str): The name of the icon to display.
-            parent (QWidget, optional): The parent widget. Defaults to None.
-        """
         super().__init__(parent)
-        self.color = color
+        self._color = QColor(color)
         self.icon_path = icon_path
         self.setFixedSize(32, 32)
 
-    def paintEvent(self, event):
-        """
-        Custom paint event to draw the button and its icon.
+    @pyqtProperty(QColor)
+    def iconColor(self):
+        return self._color
 
-        Args:
-            event (QPaintEvent): The paint event.
-        """
+    @iconColor.setter
+    def iconColor(self, color):
+        self._color = QColor(color)
+        self.update()
+
+    def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
         # Draw button background
-        painter.setBrush(QColor(self.color))
+        painter.setBrush(self._color)
         painter.setPen(Qt.NoPen)
         painter.drawEllipse(self.rect())
 
