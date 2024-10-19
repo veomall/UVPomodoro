@@ -7,7 +7,7 @@ from PyQt5.QtGui import QImage, QPixmap, QPainter, QColor
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
 
 from UVtimer.settings_window import SettingsWindow
-from UVtimer.utils import IconButton
+from UVtimer.utils import IconButton, load_stylesheet
 from UVtimer.notifications import NotificationWindow, MicroRestNotification
 from UVtimer.constants import MICRO_REST_MIN, MICRO_REST_MAX
 
@@ -21,6 +21,7 @@ class TimerWindow(QWidget):
     def __init__(self, settings):
         super().__init__()
         self.settings = settings
+        self.setStyleSheet(load_stylesheet('style.qss'))
         
         # Set window properties
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
@@ -55,16 +56,11 @@ class TimerWindow(QWidget):
         if self.settings['display_music_controller']:
             music_control_layout = QHBoxLayout()
 
-            # Create music toggle button
-            self.music_toggle_button = IconButton("#A3BE8C", "music")
-            self.music_toggle_button.clicked.connect(self.toggle_background_music)
-            music_control_layout.addWidget(self.music_toggle_button)
-
             # Create volume slider
             self.volume_slider = QSlider(Qt.Horizontal)
             self.volume_slider.setRange(0, 100)
             self.volume_slider.setValue(50)
-            self.volume_slider.setFixedWidth(80)
+            self.volume_slider.setFixedWidth(150)  # Increased width for better usability
             self.volume_slider.valueChanged.connect(self.set_background_music_volume)
             music_control_layout.addWidget(self.volume_slider)
 
@@ -150,23 +146,6 @@ class TimerWindow(QWidget):
         self.notification_sound = QMediaPlayer()
         self.notification_sound.setMedia(QMediaContent(QUrl.fromLocalFile(self.settings['notification_sound'])))
 
-    def load_background_music(self):
-        """
-        Load background music files from the specified folder into the playlist.
-        """
-        music_dir = self.settings['background_music_folder']
-        if os.path.exists(music_dir):
-            for file in random.sample(os.listdir(music_dir), len(os.listdir(music_dir))):
-                if file.endswith((".mp3", ".wav", ".ogg")):
-                    self.background_playlist.addMedia(QMediaContent(QUrl.fromLocalFile(os.path.join(music_dir, file))))
-
-    def skip_session(self):
-        """
-        Skip the current session, play notification sound, and show notification.
-        """
-        self.notification_sound.play()
-        self.show_notification()
-
     def paintEvent(self, event):
         """
         Handle the paint event to draw the background image or color.
@@ -226,20 +205,41 @@ class TimerWindow(QWidget):
             self.notification_sound.play()
             self.show_notification()
 
-    def show_notification(self):
+    def toggle_pause(self):
         """
-        Show a notification when a session is completed.
+        Toggle the pause state of the timer.
+        If the timer is active, pause it and change the button icon to play.
+        If the timer is paused, restart it and change the button icon to pause.
+        """
+        if self.timer.isActive():
+            self.timer.stop()
+            self.micro_rest_timer.stop()
+            self.pause_button.icon_path = "play"
+        else:
+            self.start_timer()
+            self.pause_button.icon_path = "pause"
+        self.pause_button.update()
+
+    def stop_timer(self):
+        """
+        Stop the timer and close the timer window.
+        This method stops all timers, stops the background music if it's enabled,
+        closes the current window, and opens the settings window.
         """
         self.timer.stop()
         self.micro_rest_timer.stop()
-        notification = NotificationWindow(self)
-        if notification.exec_() == QDialog.Accepted:
-            self.toggle_session()
-            self.start_timer()
-        else:
-            self.close()
-            self.settings_window = SettingsWindow()
-            self.settings_window.show()
+        if self.settings['display_music_controller']:
+            self.background_music.stop()
+        self.close()
+        self.settings_window = SettingsWindow()
+        self.settings_window.show()
+
+    def skip_session(self):
+        """
+        Skip the current session, play notification sound, and show notification.
+        """
+        self.notification_sound.play()
+        self.show_notification()
 
     def toggle_session(self):
         """
@@ -277,34 +277,30 @@ class TimerWindow(QWidget):
             if micro_rest.exec_() == QDialog.Accepted:
                 self.start_timer()
 
-    def toggle_pause(self):
+    def show_notification(self):
         """
-        Toggle the pause state of the timer.
-        If the timer is active, pause it and change the button icon to play.
-        If the timer is paused, restart it and change the button icon to pause.
-        """
-        if self.timer.isActive():
-            self.timer.stop()
-            self.micro_rest_timer.stop()
-            self.pause_button.icon_path = "play"
-        else:
-            self.start_timer()
-            self.pause_button.icon_path = "pause"
-        self.pause_button.update()
-
-    def stop_timer(self):
-        """
-        Stop the timer and close the timer window.
-        This method stops all timers, stops the background music if it's enabled,
-        closes the current window, and opens the settings window.
+        Show a notification when a session is completed.
         """
         self.timer.stop()
         self.micro_rest_timer.stop()
-        if self.settings['display_music_controller']:
-            self.background_music.stop()
-        self.close()
-        self.settings_window = SettingsWindow()
-        self.settings_window.show()
+        notification = NotificationWindow(self)
+        if notification.exec_() == QDialog.Accepted:
+            self.toggle_session()
+            self.start_timer()
+        else:
+            self.close()
+            self.settings_window = SettingsWindow()
+            self.settings_window.show()
+
+    def load_background_music(self):
+        """
+        Load background music files from the specified folder into the playlist.
+        """
+        music_dir = self.settings['background_music_folder']
+        if os.path.exists(music_dir):
+            for file in random.sample(os.listdir(music_dir), len(os.listdir(music_dir))):
+                if file.endswith((".mp3", ".wav", ".ogg")):
+                    self.background_playlist.addMedia(QMediaContent(QUrl.fromLocalFile(os.path.join(music_dir, file))))
 
     def toggle_background_music(self):
         """

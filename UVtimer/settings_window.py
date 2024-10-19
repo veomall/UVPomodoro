@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt5.QtCore import Qt
 
 from UVtimer.constants import *
+from UVtimer.utils import load_stylesheet
 
 
 class SettingsWindow(QMainWindow):
@@ -17,6 +18,7 @@ class SettingsWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("UVPomodoro Settings")
         self.setFixedSize(500, 400)
+        self.setStyleSheet(load_stylesheet('style.qss'))
 
         # Set up the main layout
         central_widget = QWidget()
@@ -146,18 +148,6 @@ class SettingsWindow(QMainWindow):
         self.centralWidget().layout().addWidget(container)
         return slider
 
-    def choose_notification_sound(self):
-        """
-        Opens a file dialog to choose a notification sound file.
-        """
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select Notification Sound", "", "Sound Files (*.mp3 *.wav)")
-        if file_name:
-            self.notification_sound_path.setText(os.path.basename(file_name))
-            self.notification_sound_file = file_name
-        else:
-            self.notification_sound_path.setText("Default")
-            self.notification_sound_file = "notification.mp3"
-
     def toggle_additional_settings(self):
         """
         Shows or hides the additional settings widget and adjusts the window size accordingly.
@@ -171,6 +161,18 @@ class SettingsWindow(QMainWindow):
         else:
             new_height = self.height() + self.additional_settings_height
             self.setFixedSize(self.width(), new_height)
+
+    def choose_notification_sound(self):
+        """
+        Opens a file dialog to choose a notification sound file.
+        """
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select Notification Sound", "", "Sound Files (*.mp3 *.wav)")
+        if file_name:
+            self.notification_sound_path.setText(os.path.basename(file_name))
+            self.notification_sound_file = file_name
+        else:
+            self.notification_sound_path.setText("Default")
+            self.notification_sound_file = "notification.mp3"
 
     def choose_background_music_folder(self):
         """
@@ -288,4 +290,3 @@ class SettingsWindow(QMainWindow):
         self.timer_window = TimerWindow(settings)
         self.timer_window.show()
         self.hide()
-

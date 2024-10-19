@@ -1,1 +1,0 @@
-{"run_time": 25, "rest_time": 5, "long_rest_time": 15, "sessions_before_long_rest": 4, "activate_micro_rest": false, "display_session_counter": false, "display_music_controller": false, "notification_sound": "notification.mp3", "background_music_folder": "bg_music", "background_image": null, "background_opacity": 30}
