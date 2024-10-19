@@ -1,21 +1,47 @@
+# Import necessary modules from PyQt5
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtGui import QPainter, QColor, QPainterPath
 from PyQt5.QtCore import Qt, QSize
 
 
 def load_stylesheet(file_path):
+    """
+    Load and return the contents of a stylesheet file.
+
+    Args:
+        file_path (str): The path to the stylesheet file.
+
+    Returns:
+        str: The contents of the stylesheet file.
+    """
     with open(file_path, 'r') as f:
         return f.read()
 
-
 class IconButton(QPushButton):
+    """
+    A custom QPushButton that displays an icon using vector graphics.
+    """
     def __init__(self, color, icon_path, parent=None):
+        """
+        Initialize the IconButton.
+
+        Args:
+            color (str): The background color of the button.
+            icon_path (str): The name of the icon to display.
+            parent (QWidget, optional): The parent widget. Defaults to None.
+        """
         super().__init__(parent)
         self.color = color
         self.icon_path = icon_path
         self.setFixedSize(32, 32)
 
     def paintEvent(self, event):
+        """
+        Custom paint event to draw the button and its icon.
+
+        Args:
+            event (QPaintEvent): The paint event.
+        """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
@@ -29,6 +55,7 @@ class IconButton(QPushButton):
         painter.setPen(Qt.white)
         path = QPainterPath()
 
+        # Define icon paths based on the icon_path attribute
         if self.icon_path == "pause":
             path.addRect(8, 8, 6, 16)
             path.addRect(18, 8, 6, 16)
@@ -61,14 +88,34 @@ class IconButton(QPushButton):
         painter.drawPath(path)
 
     def hitButton(self, pos):
-        # Check if the click is within the circular area
+        """
+        Determine if the button was clicked within its circular area.
+
+        Args:
+            pos (QPoint): The position of the click.
+
+        Returns:
+            bool: True if the click is within the button's circular area, False otherwise.
+        """
         center = self.rect().center()
         distance = ((pos.x() - center.x()) ** 2 + (pos.y() - center.y()) ** 2) ** 0.5
         return distance <= self.width() / 2
 
     def sizeHint(self):
+        """
+        Provide a size hint for the button.
+
+        Returns:
+            QSize: The suggested size for the button.
+        """
         return QSize(32, 32)
 
     def minimumSizeHint(self):
+        """
+        Provide a minimum size hint for the button.
+
+        Returns:
+            QSize: The minimum suggested size for the button.
+        """
         return QSize(32, 32)
 
