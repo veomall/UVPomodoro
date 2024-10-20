@@ -19,7 +19,7 @@ Clone the repository:
    cd UVPomodoro
 ```
 ### or
-Go to [Releases](https://github.com/veomall/UVPomodoro/releases) page and download installer or compiled program
+Go to [Releases](https://github.com/veomall/UVPomodoro/releases) page and download compiled program
 
 ## Usage
 
